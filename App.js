@@ -13,15 +13,30 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 const App = () => {
+  // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
+  const URL = 'https://wonderful-lionfish-40.loca.lt';
   const [phoneNumber, setPhoneNumber] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [sentCode, setSentCode] = React.useState(null);
   const [code, setCode] = React.useState('');
-  const [data, setData] = React.useState();
   const onPressHandler = async () => {
     setLoading(true);
     try {
       // do SIMCheck stuff with the dev server here before firebase stuff sort of first level of protection
+      const response = await fetch(`${URL}/sim-check`);
+      const data = await response.json();
+      if (!data.no_sim_change) {
+        return Alert.alert(
+          'Something went wrong',
+          'SIM changed too recently. Please contact support.',
+          [
+            {
+              text: 'Close',
+              onPress: () => console.log('Alert closed'),
+            },
+          ],
+        );
+      }
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
       setLoading(false);
       setSentCode(confirmation);

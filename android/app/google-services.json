@@ -29,6 +29,13 @@
             {
               "client_id": "907023151433-9q3og3cj8kjn8ft7jv7mibq3ej83k6nr.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "907023151433-6718qlgt9486854ril87gmp0ojuegn15.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.FirebaseReactNative"
+              }
             }
           ]
         }
