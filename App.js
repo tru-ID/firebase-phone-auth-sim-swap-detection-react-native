@@ -12,51 +12,73 @@ import {
   Alert,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
+
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
-  const URL = 'https://wonderful-lionfish-40.loca.lt';
+  const URL = 'https://tru-id.loca.lt';
   const [phoneNumber, setPhoneNumber] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [sentCode, setSentCode] = React.useState(null);
   const [code, setCode] = React.useState('');
+
+  const errorHandler = ({title, message}) => {
+    return Alert.alert(title, message, [
+      {
+        text: 'Close',
+        onPress: () => console.log('Alert closed'),
+      },
+    ]);
+  };
+
   const onPressHandler = async () => {
     setLoading(true);
+
     try {
       // do SIMCheck stuff with the dev server here before firebase stuff sort of first level of protection
-      const response = await fetch(`${URL}/sim-check`);
+      const body = {phone_number: phoneNumber};
+      console.log('tru.ID: Creating SIMCheck for', body);
+      const response = await fetch(`${URL}/sim-check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
       const data = await response.json();
-      if (!data.no_sim_change) {
-        return Alert.alert(
-          'Something went wrong',
-          'SIM changed too recently. Please contact support.',
-          [
-            {
-              text: 'Close',
-              onPress: () => console.log('Alert closed'),
-            },
-          ],
-        );
+      console.log('tru.ID: SIMCheck created', data);
+
+      if (data.no_sim_change === false) {
+        errorHandler({
+          title: 'SIM Change Detected',
+          message: 'SIM changed too recently. Please contact support.',
+        });
       }
+
+      console.log('Firebase: signInWithPhoneNumber');
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      console.log('Firebase: signInWithPhoneNumber result', confirmation);
+
       setLoading(false);
       setSentCode(confirmation);
     } catch (e) {
       setLoading(false);
-      Alert.alert('Something went wrong', e.message, [
-        {
-          text: 'Close',
-          onPress: () => console.log('Alert closed'),
-        },
-      ]);
+
+      errorHandler({
+        title: 'Something went wrong',
+        message: e.message,
+      });
     }
   };
+
   const confirmationHandler = async () => {
     try {
       setLoading(true);
+
       const resp = await sentCode.confirm(code);
       setLoading(false);
+
       if (resp) {
-        Alert.alert('Something went wrong', 'Successfully logged in', [
+        Alert.alert('Successfully logged in', '✅', [
           {
             text: 'Close',
             onPress: () => console.log('Alert closed'),
@@ -65,14 +87,14 @@ const App = () => {
       }
     } catch (e) {
       setLoading(false);
-      Alert.alert('Something went wrong', e.message, [
-        {
-          text: 'Close',
-          onPress: () => console.log('Alert closed'),
-        },
-      ]);
+
+      errorHandler({
+        title: 'Something went wrong',
+        message: e.message,
+      });
     }
   };
+
   return (
     <SafeAreaView style={styles.backgroundStyle}>
       <StatusBar barStyle="light-content" />
@@ -104,8 +126,7 @@ const App = () => {
               keyboardType="phone-pad"
               placeholder="ex. +448023432345"
               placeholderTextColor="#d3d3d3"
-              onChangeText={text => setPhoneNumber(text)}
-              value={phoneNumber}
+              onChangeText={text => setPhoneNumber(text.replace(/\s+/g, ''))}
             />
 
             {loading ? (
@@ -121,11 +142,13 @@ const App = () => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   backgroundStyle: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#ffffff',
   },
   heading: {
     fontSize: 50,
@@ -163,4 +186,5 @@ const styles = StyleSheet.create({
     width: 0.8 * Dimensions.get('window').width,
   },
 });
+
 export default App;
