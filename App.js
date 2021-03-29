@@ -61,6 +61,7 @@ const App = () => {
       setLoading(false);
       setSentCode(confirmation);
     } catch (e) {
+      console.error(e);
       setLoading(false);
 
       errorHandler({
@@ -85,7 +86,10 @@ const App = () => {
           },
         ]);
       }
+      // TODO: what's the else here?
+      // TODO: reset UI so the user can repeat?
     } catch (e) {
+      console.error(e);
       setLoading(false);
 
       errorHandler({
