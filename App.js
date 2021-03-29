@@ -15,7 +15,7 @@ import auth from '@react-native-firebase/auth';
 
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
-  const URL = 'https://tru-id.loca.lt';
+  const URL = ' https://silent-termite-48.loca.lt'; //'https://tru-id.loca.lt';
   const [phoneNumber, setPhoneNumber] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [sentCode, setSentCode] = React.useState(null);
@@ -34,7 +34,6 @@ const App = () => {
     setLoading(true);
 
     try {
-      // do SIMCheck stuff with the dev server here before firebase stuff sort of first level of protection
       const body = {phone_number: phoneNumber};
       console.log('tru.ID: Creating SIMCheck for', body);
       const response = await fetch(`${URL}/sim-check`, {
@@ -52,6 +51,7 @@ const App = () => {
           title: 'SIM Change Detected',
           message: 'SIM changed too recently. Please contact support.',
         });
+        return;
       }
 
       console.log('Firebase: signInWithPhoneNumber');
@@ -86,12 +86,11 @@ const App = () => {
           },
         ]);
       }
-      // TODO: what's the else here?
-      // TODO: reset UI so the user can repeat?
     } catch (e) {
       console.error(e);
       setLoading(false);
-
+      // set `sentCode` to null resetting the UI
+      setSentCode(null);
       errorHandler({
         title: 'Something went wrong',
         message: e.message,
