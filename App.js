@@ -15,10 +15,13 @@ import {
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
   const URL = 'https://wonderful-lionfish-40.loca.lt';
+
   // we'll handle the SIMCheck API Call and Firebase Phone Authentication in the function below
   const onPressHandler = async () => {};
+
   // we'll handle verifying the received OTP in the function below
   const confirmationHandler = async () => {};
+
   return (
     <SafeAreaView style={styles.backgroundStyle}>
       <StatusBar barStyle="light-content" />
@@ -26,6 +29,7 @@ const App = () => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   backgroundStyle: {
     flex: 1,
@@ -68,4 +72,5 @@ const styles = StyleSheet.create({
     width: 0.8 * Dimensions.get('window').width,
   },
 });
+
 export default App;
