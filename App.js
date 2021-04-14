@@ -25,7 +25,7 @@ const App = () => {
   return (
     <SafeAreaView style={styles.backgroundStyle}>
       <StatusBar barStyle="light-content" />
-      <Text style={styles.heading}>Tru.ID + Firebase Auth</Text>
+      <Text style={styles.heading}>tru.ID + Firebase Auth</Text>
     </SafeAreaView>
   );
 };
