@@ -10,7 +10,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
-  Image
+  Image,
 } from 'react-native';
 
 const App = () => {
@@ -24,24 +24,12 @@ const App = () => {
   const confirmationHandler = async () => {};
 
   return (
-     <LinearGradient
-      colors={['rgba(25, 85, 255, 40)', 'rgba(10, 10, 50, 66)']}
-      useAngle={true}
-      angle={0}
-      style={{
-        flex: 1,
-      }}>
-      <SafeAreaView style={styles.backgroundStyle}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.box}>
-          <Image
-            style={styles.logo}
-            source={require('./images/tru-logo.png')}
-          />
-          <Text style={styles.heading}>tru.ID + Firebase Auth</Text>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <SafeAreaView style={styles.backgroundStyle}>
+      <StatusBar barStyle="light-content" />
+
+      <Image style={styles.logo} source={require('./images/tru-logo.png')} />
+      <Text style={styles.heading}>tru.ID + Firebase Auth</Text>
+    </SafeAreaView>
   );
 };
 
@@ -54,20 +42,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
   },
-  box: {
-    width: '90%',
-    borderRadius: 3,
-    backgroundColor: '#fff',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0.5, height: 1},
-    shadowOpacity: 0.8,
-    shadowRadius: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 0.7 * Dimensions.get('window').height,
-    padding: 15,
-  },
   logo: {
     marginTop: 10,
     width: 0.5 * Dimensions.get('window').width,
@@ -76,12 +50,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 50,
   },
-  form: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
+
   button: {
     alignItems: 'center',
     justifyContent: 'center',
