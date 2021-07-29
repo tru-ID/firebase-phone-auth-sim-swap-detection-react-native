@@ -13,7 +13,6 @@ import {
   Image,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import LinearGradient from 'react-native-linear-gradient';
 
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
@@ -99,72 +98,57 @@ const App = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['rgba(25, 85, 255, 40)', 'rgba(10, 10, 50, 66)']}
-      useAngle={true}
-      angle={0}
-      style={{
-        flex: 1,
-      }}>
-      <SafeAreaView style={styles.backgroundStyle}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.box}>
-          <Image
-            style={styles.logo}
-            source={require('./images/tru-logo.png')}
+    <SafeAreaView style={styles.backgroundStyle}>
+      <StatusBar barStyle="light-content" />
+      <Image style={styles.logo} source={require('./images/tru-logo.png')} />
+      <Text style={styles.heading}>tru.ID + Firebase Auth</Text>
+      {sentCode ? (
+        <View style={styles.center}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="OTP"
+            placeholderTextColor="#d3d3d3"
+            onChangeText={text => setCode(text)}
+            value={code}
           />
-          <Text style={styles.heading}>tru.ID + Firebase Auth</Text>
-          {sentCode ? (
-            <View style={styles.center}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="OTP"
-                placeholderTextColor="#d3d3d3"
-                onChangeText={text => setCode(text)}
-                value={code}
-              />
-              {loading ? (
-                <ActivityIndicator
-                  style={styles.spinner}
-                  size="large"
-                  color="#00ff00"
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={confirmationHandler}
-                  style={styles.button}>
-                  <Text style={styles.buttonText}>Verify</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+          {loading ? (
+            <ActivityIndicator
+              style={styles.spinner}
+              size="large"
+              color="#00ff00"
+            />
           ) : (
-            <View style={styles.center}>
-              <TextInput
-                style={styles.textInput}
-                keyboardType="phone-pad"
-                placeholder="ex. +448023432345"
-                placeholderTextColor="#d3d3d3"
-                onChangeText={text => setPhoneNumber(text.replace(/\s+/g, ''))}
-              />
-
-              {loading ? (
-                <ActivityIndicator
-                  style={styles.spinner}
-                  size="large"
-                  color="#00ff00"
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={onPressHandler}
-                  style={styles.button}>
-                  <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            <TouchableOpacity
+              onPress={confirmationHandler}
+              style={styles.button}>
+              <Text style={styles.buttonText}>Verify</Text>
+            </TouchableOpacity>
           )}
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+      ) : (
+        <View style={styles.center}>
+          <TextInput
+            style={styles.textInput}
+            keyboardType="phone-pad"
+            placeholder="ex. +448023432345"
+            placeholderTextColor="#d3d3d3"
+            onChangeText={text => setPhoneNumber(text.replace(/\s+/g, ''))}
+          />
+
+          {loading ? (
+            <ActivityIndicator
+              style={styles.spinner}
+              size="large"
+              color="#00ff00"
+            />
+          ) : (
+            <TouchableOpacity onPress={onPressHandler} style={styles.button}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -177,20 +161,7 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
   },
-  box: {
-    width: '90%',
-    borderRadius: 3,
-    backgroundColor: '#fff',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0.5, height: 1},
-    shadowOpacity: 0.8,
-    shadowRadius: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 0.7 * Dimensions.get('window').height,
-    padding: 15,
-  },
+
   logo: {
     marginTop: 10,
     width: 0.5 * Dimensions.get('window').width,
@@ -199,12 +170,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 50,
   },
-  form: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
+
   button: {
     alignItems: 'center',
     justifyContent: 'center',
