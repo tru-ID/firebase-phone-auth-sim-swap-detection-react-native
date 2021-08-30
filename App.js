@@ -13,7 +13,7 @@ import {
   Image,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-
+import TruSDK from '@tru_id/tru-sdk-react-native';
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
   const URL = ' https://silent-termite-48.loca.lt'; //'https://tru-id.loca.lt';
@@ -33,6 +33,39 @@ const App = () => {
 
   const onPressHandler = async () => {
     try {
+      const reachabilityDetails = TruSDK.isReachable();
+
+      const reachabilityInfo = JSON.parse(reachabilityDetails);
+
+      if (reachabilityInfo.error.status === 400) {
+        errorHandler({
+          title: 'Something went wrong.',
+          message: 'MNO not supported',
+        });
+        setLoading(false);
+
+        return;
+      }
+      let isPhoneCheckSupported = false;
+
+      if (reachabilityInfo.error.status !== 412) {
+        for (const {productType} of reachabilityInfo.products) {
+          console.log('supported products are', productType);
+
+          if (productType === 'PhoneCheck') {
+            isPhoneCheckSupported = true;
+          }
+        }
+      } else {
+        isPhoneCheckSupported = true;
+      }
+
+      if (!isPhoneCheckSupported) {
+        errorHandler({
+          title: 'Something went wrong.',
+          message: 'PhoneCheck is not supported on MNO',
+        });
+      }
       const body = {phone_number: phoneNumber};
       console.log('tru.ID: Creating SIMCheck for', body);
       const response = await fetch(`${URL}/sim-check`, {
