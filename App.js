@@ -65,6 +65,7 @@ const App = () => {
           title: 'Something went wrong.',
           message: 'PhoneCheck is not supported on MNO',
         });
+        return;
       }
       const body = {phone_number: phoneNumber};
       console.log('tru.ID: Creating SIMCheck for', body);
@@ -79,6 +80,7 @@ const App = () => {
       console.log('tru.ID: SIMCheck created', data);
 
       if (data.no_sim_change === false) {
+        setLoading(false);
         errorHandler({
           title: 'SIM Change Detected',
           message: 'SIM changed too recently. Please contact support.',
