@@ -16,7 +16,7 @@ import auth from '@react-native-firebase/auth';
 import TruSDK from '@tru_id/tru-sdk-react-native';
 const App = () => {
   // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
-  const URL = ' https://silent-termite-48.loca.lt'; //'https://tru-id.loca.lt';
+  const URL = 'https://{subdomain}.loca.lt';
   const [phoneNumber, setPhoneNumber] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [sentCode, setSentCode] = React.useState(null);
@@ -33,7 +33,7 @@ const App = () => {
 
   const onPressHandler = async () => {
     try {
-      const reachabilityDetails = TruSDK.isReachable();
+      const reachabilityDetails = await TruSDK.isReachable();
 
       const reachabilityInfo = JSON.parse(reachabilityDetails);
 
