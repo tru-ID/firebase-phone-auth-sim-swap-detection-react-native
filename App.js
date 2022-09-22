@@ -23,7 +23,7 @@ const App = () => {
   const [code, setCode] = React.useState('')
 
   // Replace `URL` with Ngrok URL in the format : https://{subdomain}.{region}.ngrok.io
-  const URL = 'https://7e221758d7ec.eu.ngrok.io'
+  const URL = '{YOUR_NGROK_URL}'
 
   const errorHandler = ({ title, message }) => {
 
