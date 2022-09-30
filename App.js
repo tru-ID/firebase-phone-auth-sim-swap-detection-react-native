@@ -12,125 +12,144 @@ import {
   Alert,
   Image,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
-import TruSDK from '@tru_id/tru-sdk-react-native';
-const App = () => {
-  // Replace `URL` below with LocalTunnel URL in the format : https://{subdomain}.loca.lt
-  const URL = 'https://{subdomain}.loca.lt';
-  const [phoneNumber, setPhoneNumber] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [sentCode, setSentCode] = React.useState(null);
-  const [code, setCode] = React.useState('');
 
-  const errorHandler = ({title, message}) => {
+import auth from '@react-native-firebase/auth'
+import TruSdkReactNative from '@tru_id/tru-sdk-react-native'
+
+const App = () => {
+  const [phoneNumber, setPhoneNumber] = React.useState('')
+  const [loading, setLoading] = React.useState(false)
+  const [sentCode, setSentCode] = React.useState(null)
+  const [code, setCode] = React.useState('')
+
+  // Replace `URL` with Ngrok URL in the format : https://{subdomain}.{region}.ngrok.io
+  const URL = '{YOUR_NGROK_URL}'
+
+  const errorHandler = ({ title, message }) => {
+
     return Alert.alert(title, message, [
       {
         text: 'Close',
         onPress: () => console.log('Alert closed'),
       },
-    ]);
-  };
+    ])
+  }
 
+  // we'll handle the SIMCheck API Call and Firebase Phone Authentication in the function below
   const onPressHandler = async () => {
     try {
-      const reachabilityDetails = await TruSDK.isReachable();
-
-      const reachabilityInfo = JSON.parse(reachabilityDetails);
-
-      if (reachabilityInfo.error.status === 400) {
+      const reachabilityResponse = await TruSdkReactNative.openWithDataCellular(
+        'https://eu.api.tru.id/public/coverage/v0.1/device_ip'
+      );
+  
+      console.log(reachabilityResponse);
+      let isMNOSupported = false
+  
+      if ('error' in reachabilityResponse) {
         errorHandler({
           title: 'Something went wrong.',
           message: 'MNO not supported',
-        });
-        setLoading(false);
-
-        return;
-      }
-      let isPhoneCheckSupported = false;
-
-      if (reachabilityInfo.error.status !== 412) {
-        for (const {productType} of reachabilityInfo.products) {
-          console.log('supported products are', productType);
-
-          if (productType === 'PhoneCheck') {
-            isPhoneCheckSupported = true;
-          }
+        })
+        setLoading(false)
+  
+        return
+      } else if ('http_status' in reachabilityResponse) {
+        let httpStatus = reachabilityResponse.http_status;
+        if (httpStatus === 200 && reachabilityResponse.response_body !== undefined) {
+          let body = reachabilityResponse.response_body;
+          console.log('product => ' + JSON.stringify(body.products[0]));
+          isMNOSupported = true;
+        } else if (httpStatus === 400 || httpStatus === 412 || reachabilityResponse.response_body !== undefined) {
+          errorHandler({
+            title: 'Something went wrong.',
+            message: 'MNO not supported',
+          })
+          setLoading(false)
+  
+          return
         }
-      } else {
-        isPhoneCheckSupported = true;
       }
-
+  
+      let isPhoneCheckSupported = false
+  
+      if (isMNOSupported === true) {
+        reachabilityResponse.response_body.products.forEach((product) => {
+          console.log('supported products are', product)
+  
+          if (product.product_name === 'Phone Check') {
+            isPhoneCheckSupported = true
+          }
+        })
+      }
+  
       if (!isPhoneCheckSupported) {
         errorHandler({
           title: 'Something went wrong.',
           message: 'PhoneCheck is not supported on MNO',
-        });
-        return;
+        })
+        return
       }
-      const body = {phone_number: phoneNumber};
-      console.log('tru.ID: Creating SIMCheck for', body);
-      const response = await fetch(`${URL}/sim-check`, {
+
+      const body = { phone_number: phoneNumber }
+      console.log('tru.ID: Creating SIMCheck for', body)
+      const response = await fetch(`${URL}/v0.1/sim-check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
-      });
-      const data = await response.json();
-      console.log('tru.ID: SIMCheck created', data);
+      })
+      const data = await response.json()
+      console.log('tru.ID: SIMCheck created', data)
 
       if (data.no_sim_change === false) {
-        setLoading(false);
+        setLoading(false)
         errorHandler({
           title: 'SIM Change Detected',
           message: 'SIM changed too recently. Please contact support.',
-        });
-        return;
+        })
+        return
       }
-
-      console.log('Firebase: signInWithPhoneNumber');
-      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-      console.log('Firebase: signInWithPhoneNumber result', confirmation);
-
-      setLoading(false);
-      setSentCode(confirmation);
+  
+      console.log('Firebase: signInWithPhoneNumber')
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber)
+      console.log('Firebase: signInWithPhoneNumber result', confirmation)
+  
+      setLoading(false)
+      setSentCode(confirmation)
     } catch (e) {
-      console.error(e);
-      setLoading(false);
-
-      errorHandler({
-        title: 'Something went wrong',
-        message: e.message,
-      });
+      setLoading(false)
+      errorHandler({ title: 'Something went wrong', message: e.message })
     }
-  };
+  }
 
+  // we'll handle verifying the received OTP in the function below
   const confirmationHandler = async () => {
     try {
-      setLoading(true);
-
-      const resp = await sentCode.confirm(code);
-      setLoading(false);
-
+      setLoading(true)
+  
+      const resp = await sentCode.confirm(code)
+      setLoading(false)
+  
       if (resp) {
         Alert.alert('Successfully logged in', '✅', [
           {
             text: 'Close',
             onPress: () => console.log('Alert closed'),
           },
-        ]);
+        ])
       }
     } catch (e) {
-      console.error(e);
-      setLoading(false);
+      console.error(e)
+      setLoading(false)
       // set `sentCode` to null resetting the UI
-      setSentCode(null);
+      setSentCode(null)
       errorHandler({
         title: 'Something went wrong',
         message: e.message,
-      });
+      })
     }
-  };
+  }
 
   return (
     <SafeAreaView style={styles.backgroundStyle}>
@@ -143,7 +162,7 @@ const App = () => {
             style={styles.textInput}
             placeholder="OTP"
             placeholderTextColor="#d3d3d3"
-            onChangeText={text => setCode(text)}
+            onChangeText={(text) => setCode(text)}
             value={code}
           />
           {loading ? (
@@ -155,7 +174,8 @@ const App = () => {
           ) : (
             <TouchableOpacity
               onPress={confirmationHandler}
-              style={styles.button}>
+              style={styles.button}
+            >
               <Text style={styles.buttonText}>Verify</Text>
             </TouchableOpacity>
           )}
@@ -167,7 +187,7 @@ const App = () => {
             keyboardType="phone-pad"
             placeholder="ex. +448023432345"
             placeholderTextColor="#d3d3d3"
-            onChangeText={text => setPhoneNumber(text.replace(/\s+/g, ''))}
+            onChangeText={(text) => setPhoneNumber(text.replace(/\s+/g, ''))}
           />
 
           {loading ? (
@@ -184,8 +204,8 @@ const App = () => {
         </View>
       )}
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   backgroundStyle: {
