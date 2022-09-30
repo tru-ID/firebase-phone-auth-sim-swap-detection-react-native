@@ -13,7 +13,7 @@
   "dependencies": {
     "@react-native-firebase/app": "^15.6.0",
     "@react-native-firebase/auth": "^15.6.0",
-    "@tru_id/tru-sdk-react-native": "^1.0.0-preview",
+    "@tru_id/tru-sdk-react-native": "^1.0.0",
     "firebase": "^8.9.1",
     "react": "17.0.1",
     "react-native": "0.64.0"
